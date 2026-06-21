@@ -33,7 +33,8 @@ export async function POST(request: Request) {
   if (orderError) return NextResponse.json({ error: orderError.message }, { status: 500 })
 
   // Create order items
-  const orderItems = items.map((item: any) => ({
+  // After
+  const orderItems = items.map((item: { product_id: string; quantity: number; price: number }) => ({
     order_id: order.id,
     product_id: item.product_id,
     quantity: item.quantity,
