@@ -4,29 +4,32 @@ import { NextResponse } from 'next/server'
 // GET single product
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (error) return NextResponse.json({ error: 'Product not found' }, { status: 404 })
   return NextResponse.json(data)
 }
 
-// PATCH update product
+// PATCH partially update product
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const body = await request.json()
 
   const { data, error } = await supabase
     .from('products')
     .update(body)
-    .eq('id', params.id)
+    .eq('id', id)
     .select()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -36,12 +39,14 @@ export async function PATCH(
 // DELETE product
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   const { error } = await supabase
     .from('products')
     .delete()
-    .eq('id', params.id)
+    .eq('id', id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ message: 'Product deleted successfully' })

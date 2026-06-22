@@ -4,8 +4,10 @@ import { NextResponse } from 'next/server'
 // GET single order with items
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   const { data, error } = await supabase
     .from('orders')
     .select(`
@@ -15,7 +17,7 @@ export async function GET(
         products (name, price, image_url)
       )
     `)
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (error) return NextResponse.json({ error: 'Order not found' }, { status: 404 })
@@ -25,14 +27,15 @@ export async function GET(
 // PATCH update order status
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const { status } = await request.json()
 
   const { data, error } = await supabase
     .from('orders')
     .update({ status })
-    .eq('id', params.id)
+    .eq('id', id)
     .select()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
